@@ -1,38 +1,31 @@
-// Simple romantic kiss scene - no complex interactions needed
-// Just beautiful animations and floating hearts
+class ProposalSite {
+    constructor() {
+        this.currentQuestion = 1;
+        this.noClickCount = 0;
+        this.questionText = document.getElementById('question-text');
+        this.yesBtn = document.getElementById('yes-btn');
+        this.noBtn = document.getElementById('no-btn');
+        this.buttonsContainer = document.querySelector('.buttons-container');
+        this.startTime = new Date();
+        this.interactions = [];
+        this.sessionId = this.generateSessionId();
+        this.lastActivity = new Date();
+        this.isCompleted = false;
+        this.inactivityTimer = null;
+        this.inactivityThreshold = 60000; // 1 minute of inactivity
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Add more floating hearts for extra romance
-    createMoreHearts();
+        this.questions = {
+            1: "Let me have thy beautiful bombom 🥹🥹",
+            2: "Please...?",
+            3: "System error... 'Back to sender' won't work. Accepting is mandatory 😈",
+            4: "Only one choice, the ass is mine 😈",
+            5: "Good will pick you up on Friday 😘"
+        };
 
-    // Add some sparkle effects
-    addSparkleEffects();
-});
-
-function createMoreHearts() {
-    const heartBackground = document.querySelector('.heart-background');
-
-    // Create additional hearts
-    for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-            const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.style.left = Math.random() * 100 + '%';
-            heart.style.top = Math.random() * 100 + '%';
-            heart.style.animationDelay = Math.random() * 3 + 's';
-            heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
-
-            heartBackground.appendChild(heart);
-
-            // Remove heart after animation cycle
-            setTimeout(() => {
-                if (heart.parentNode) {
-                    heart.remove();
-                }
-            }, 8000);
-        }, i * 300);
+        this.init();
+        this.setupTrackingListeners();
     }
-    
+
     init() {
         this.yesBtn.addEventListener('click', () => this.handleYes());
         this.noBtn.addEventListener('click', () => this.handleNo());
