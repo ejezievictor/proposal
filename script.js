@@ -146,11 +146,95 @@ class ProposalSite {
     showFinalMessage() {
         this.questionText.textContent = this.questions[5];
         this.questionText.classList.add('final-message');
-        
+
         // Hide all buttons
         this.buttonsContainer.style.display = 'none';
-        
+
+        // Add final text input after a short delay
+        setTimeout(() => {
+            this.showFinalTextInput();
+        }, 2000);
+
         // Add some celebration effects
+        this.addCelebrationEffects();
+    }
+
+    showFinalTextInput() {
+        // Create final input container
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'final-input-container';
+        inputContainer.innerHTML = `
+            <h2 class="final-question">Ready to receive it hot? 🙂</h2>
+            <textarea id="final-response" placeholder="Tell me what's on your mind... 💭" maxlength="500"></textarea>
+            <button id="submit-final" class="btn final-submit-btn">Submit 💕</button>
+        `;
+
+        // Add to proposal card
+        document.querySelector('.proposal-card').appendChild(inputContainer);
+
+        // Add event listener for submit
+        document.getElementById('submit-final').addEventListener('click', () => {
+            this.handleFinalSubmission();
+        });
+
+        // Add enter key support
+        document.getElementById('final-response').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                this.handleFinalSubmission();
+            }
+        });
+    }
+
+    async handleFinalSubmission() {
+        const responseText = document.getElementById('final-response').value.trim();
+
+        if (!responseText) {
+            alert('Please share your thoughts! 💕');
+            return;
+        }
+
+        // Log the final response
+        this.logInteraction('FINAL_RESPONSE', 'Final Question', responseText);
+
+        // Submit to Netlify
+        await this.submitFinalResponse(responseText);
+
+        // Show thank you message
+        this.showThankYouMessage();
+    }
+
+    async submitFinalResponse(responseText) {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('form-name', 'final-responses');
+            formData.append('email', 'ejezievictor7@gmail.com');
+            formData.append('session-id', this.sessionId);
+            formData.append('final-response', responseText);
+            formData.append('total-interactions', this.interactions.length);
+            formData.append('total-time', Math.round((new Date() - this.startTime) / 1000));
+            formData.append('timestamp', new Date().toISOString());
+
+            const response = await fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+
+            console.log('✅ Final response submitted successfully!');
+
+        } catch (error) {
+            console.log('❌ Final response submission failed:', error);
+        }
+    }
+
+    showThankYouMessage() {
+        const inputContainer = document.querySelector('.final-input-container');
+        inputContainer.innerHTML = `
+            <h2 class="thank-you-message">Thank you for sharing! 💕</h2>
+            <p class="thank-you-text">Your response has been received. Can't wait for our date! 😘</p>
+        `;
+
+        // Add more celebration effects
         this.addCelebrationEffects();
     }
     

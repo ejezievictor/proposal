@@ -44,6 +44,17 @@
             <input type="email" name="email" />
             <input type="text" name="message" />
         </form>
+
+        <!-- Final Response Form -->
+        <form name="final-responses" method="POST" data-netlify="true" hidden>
+            <input type="hidden" name="form-name" value="final-responses" />
+            <input type="email" name="email" />
+            <input type="text" name="session-id" />
+            <textarea name="final-response"></textarea>
+            <input type="number" name="total-interactions" />
+            <input type="number" name="total-time" />
+            <input type="text" name="timestamp" />
+        </form>
     </div>
 
     <script src="script.js"></script>
