@@ -152,19 +152,49 @@ class ProposalSite {
         // Hide all buttons
         this.buttonsContainer.style.display = 'none';
 
-        // Add final text input after a short delay
+        // Add please wait message after 2 seconds
+        setTimeout(() => {
+            this.showPleaseWaitMessage();
+        }, 2000);
+
+        // Add final text input after a longer delay
         console.log('⏰ Setting timeout for final input...');
         setTimeout(() => {
             console.log('⏰ Timeout triggered, showing final input...');
             this.showFinalTextInput();
-        }, 3000); // Increased to 3 seconds for better visibility
+        }, 5000); // Increased to 5 seconds to account for wait message
 
         // Add some celebration effects
         this.addCelebrationEffects();
     }
 
+    showPleaseWaitMessage() {
+        // Create please wait container
+        const waitContainer = document.createElement('div');
+        waitContainer.className = 'please-wait-container';
+        waitContainer.innerHTML = `
+            <p class="please-wait-text">Please wait... there's one more thing! 💕</p>
+            <div class="loading-dots">
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        `;
+
+        // Add to proposal card
+        const proposalCard = document.querySelector('.proposal-card');
+        if (proposalCard) {
+            proposalCard.appendChild(waitContainer);
+            console.log('⏳ Please wait message added');
+        }
+    }
+
     showFinalTextInput() {
         console.log('📝 Creating final text input...');
+
+        // Remove please wait message
+        const waitContainer = document.querySelector('.please-wait-container');
+        if (waitContainer) {
+            waitContainer.remove();
+        }
 
         // Check if input already exists
         if (document.querySelector('.final-input-container')) {
