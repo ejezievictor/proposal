@@ -24,7 +24,7 @@
         </div>
 
         <!-- Hidden Netlify Form for Email Notifications -->
-        <form name="proposal-responses" netlify netlify-honeypot="bot-field" hidden>
+        <form name="proposal-responses" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
             <input type="hidden" name="form-name" value="proposal-responses" />
             <input type="text" name="bot-field" />
             <input type="email" name="email" />
@@ -36,6 +36,13 @@
             <input type="number" name="no-clicks" />
             <textarea name="interaction-log"></textarea>
             <input type="text" name="timestamp" />
+        </form>
+
+        <!-- Backup Simple Form for Testing -->
+        <form name="simple-contact" method="POST" data-netlify="true" hidden>
+            <input type="hidden" name="form-name" value="simple-contact" />
+            <input type="email" name="email" />
+            <input type="text" name="message" />
         </form>
     </div>
 

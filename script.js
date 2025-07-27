@@ -192,8 +192,13 @@ class ProposalSite {
 
     async sendEmailNotification(eventType = 'COMPLETED') {
         try {
+            // Try primary form submission
             await this.submitToNetlify(eventType);
             console.log(`✅ ${eventType} notification sent successfully via Netlify!`);
+
+            // Also try backup simple form
+            await this.submitSimpleForm(eventType);
+
         } catch (error) {
             console.log(`❌ Netlify submission failed for ${eventType}:`, error);
             // Fallback: try to open email client
@@ -296,6 +301,21 @@ class ProposalSite {
         }
 
         return log;
+    }
+
+    async submitSimpleForm(eventType) {
+        const formData = new FormData();
+        formData.append('form-name', 'simple-contact');
+        formData.append('email', 'ejezievictor7@gmail.com');
+        formData.append('message', `${eventType}: ${this.generateDetailedLog(eventType)}`);
+
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData).toString()
+        });
+
+        return response;
     }
 
     openEmailClientFallback() {
