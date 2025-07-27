@@ -8,9 +8,9 @@ class ProposalSite {
         this.buttonsContainer = document.querySelector('.buttons-container');
         
         this.questions = {
-            1: "Let me have thy beautiful bombom",
+            1: "Let me have thy beautiful bombom 🥹🥹",
             2: "Please...?",
-            3: "System error... Accepting is mandatory 😈",
+            3: "System error... 'Back to sender' won't work. Accepting is mandatory 😈",
             4: "Only one choice, the ass is mine 😈",
             5: "Good will pick you up on Friday 😘"
         };
