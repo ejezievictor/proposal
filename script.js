@@ -144,6 +144,7 @@ class ProposalSite {
     }
     
     showFinalMessage() {
+        console.log('🎉 Showing final message...');
         this.questionText.textContent = this.questions[5];
         this.questionText.classList.add('final-message');
 
@@ -151,15 +152,25 @@ class ProposalSite {
         this.buttonsContainer.style.display = 'none';
 
         // Add final text input after a short delay
+        console.log('⏰ Setting timeout for final input...');
         setTimeout(() => {
+            console.log('⏰ Timeout triggered, showing final input...');
             this.showFinalTextInput();
-        }, 2000);
+        }, 3000); // Increased to 3 seconds for better visibility
 
         // Add some celebration effects
         this.addCelebrationEffects();
     }
 
     showFinalTextInput() {
+        console.log('📝 Creating final text input...');
+
+        // Check if input already exists
+        if (document.querySelector('.final-input-container')) {
+            console.log('⚠️ Final input already exists, skipping...');
+            return;
+        }
+
         // Create final input container
         const inputContainer = document.createElement('div');
         inputContainer.className = 'final-input-container';
@@ -170,19 +181,32 @@ class ProposalSite {
         `;
 
         // Add to proposal card
-        document.querySelector('.proposal-card').appendChild(inputContainer);
+        const proposalCard = document.querySelector('.proposal-card');
+        if (proposalCard) {
+            proposalCard.appendChild(inputContainer);
+            console.log('✅ Final input added to proposal card');
+        } else {
+            console.log('❌ Could not find proposal card');
+        }
 
         // Add event listener for submit
-        document.getElementById('submit-final').addEventListener('click', () => {
-            this.handleFinalSubmission();
-        });
+        const submitBtn = document.getElementById('submit-final');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', () => {
+                console.log('🔘 Submit button clicked');
+                this.handleFinalSubmission();
+            });
+        }
 
         // Add enter key support
-        document.getElementById('final-response').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                this.handleFinalSubmission();
-            }
-        });
+        const textarea = document.getElementById('final-response');
+        if (textarea) {
+            textarea.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    this.handleFinalSubmission();
+                }
+            });
+        }
     }
 
     async handleFinalSubmission() {
