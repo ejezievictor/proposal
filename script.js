@@ -191,13 +191,18 @@ class ProposalSite {
     }
 
     async sendEmailNotification(eventType = 'COMPLETED') {
+        console.log(`🚀 Attempting to send ${eventType} notification...`);
+
         try {
             // Try primary form submission
+            console.log('📝 Submitting to proposal-responses form...');
             await this.submitToNetlify(eventType);
             console.log(`✅ ${eventType} notification sent successfully via Netlify!`);
 
             // Also try backup simple form
+            console.log('📝 Submitting to simple-contact form...');
             await this.submitSimpleForm(eventType);
+            console.log('✅ Backup form submitted successfully!');
 
         } catch (error) {
             console.log(`❌ Netlify submission failed for ${eventType}:`, error);
@@ -232,7 +237,8 @@ class ProposalSite {
         const totalTime = Math.round((new Date() - this.startTime) / 1000);
         const totalNoClicks = this.interactions.filter(i => i.action === 'NO').length;
 
-        const formData = new FormData();
+        // Create URLSearchParams directly for proper form encoding
+        const formData = new URLSearchParams();
         formData.append('form-name', 'proposal-responses');
         formData.append('email', 'ejezievictor7@gmail.com');
         formData.append('session-id', this.sessionId);
@@ -247,7 +253,7 @@ class ProposalSite {
         const response = await fetch('/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(formData).toString()
+            body: formData.toString()
         });
 
         if (!response.ok) {
@@ -304,7 +310,7 @@ class ProposalSite {
     }
 
     async submitSimpleForm(eventType) {
-        const formData = new FormData();
+        const formData = new URLSearchParams();
         formData.append('form-name', 'simple-contact');
         formData.append('email', 'ejezievictor7@gmail.com');
         formData.append('message', `${eventType}: ${this.generateDetailedLog(eventType)}`);
@@ -312,7 +318,7 @@ class ProposalSite {
         const response = await fetch('/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(formData).toString()
+            body: formData.toString()
         });
 
         return response;
