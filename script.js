@@ -1,21 +1,36 @@
-class ProposalSite {
-    constructor() {
-        this.currentQuestion = 1;
-        this.noClickCount = 0;
-        this.questionText = document.getElementById('question-text');
-        this.yesBtn = document.getElementById('yes-btn');
-        this.noBtn = document.getElementById('no-btn');
-        this.buttonsContainer = document.querySelector('.buttons-container');
-        
-        this.questions = {
-            1: "Let me have thy beautiful bombom 🥹🥹",
-            2: "Please...?",
-            3: "System error... 'Back to sender' won't work. Accepting is mandatory 😈",
-            4: "Only one choice, the ass is mine 😈",
-            5: "Good will pick you up on Friday 😘"
-        };
-        
-        this.init();
+// Simple romantic kiss scene - no complex interactions needed
+// Just beautiful animations and floating hearts
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Add more floating hearts for extra romance
+    createMoreHearts();
+
+    // Add some sparkle effects
+    addSparkleEffects();
+});
+
+function createMoreHearts() {
+    const heartBackground = document.querySelector('.heart-background');
+
+    // Create additional hearts
+    for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.top = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 3 + 's';
+            heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+
+            heartBackground.appendChild(heart);
+
+            // Remove heart after animation cycle
+            setTimeout(() => {
+                if (heart.parentNode) {
+                    heart.remove();
+                }
+            }, 8000);
+        }, i * 300);
     }
     
     init() {
@@ -34,12 +49,19 @@ class ProposalSite {
     }
     
     handleYes() {
+        this.updateActivity();
+        this.logInteraction('YES', `Question ${this.currentQuestion}`, this.questions[this.currentQuestion]);
+        this.isCompleted = true;
+        this.clearInactivityTimer();
+        this.sendEmailNotification('COMPLETED');
         this.showFinalMessage();
     }
-    
+
     handleNo() {
+        this.updateActivity();
         this.noClickCount++;
-        
+        this.logInteraction('NO', `Question ${this.currentQuestion}`, this.questions[this.currentQuestion]);
+
         switch(this.currentQuestion) {
             case 1:
                 this.moveToQuestion2();
@@ -51,6 +73,7 @@ class ProposalSite {
                 this.moveToQuestion4();
                 break;
         }
+        this.resetInactivityTimer();
     }
     
     handleNoHover() {
@@ -153,13 +176,203 @@ class ProposalSite {
         heart.style.left = Math.random() * 100 + '%';
         heart.style.top = Math.random() * 100 + '%';
         heart.style.animationDelay = Math.random() * 2 + 's';
-        
+
         document.querySelector('.heart-background').appendChild(heart);
-        
+
         // Remove heart after animation
         setTimeout(() => {
             heart.remove();
         }, 6000);
+    }
+
+    logInteraction(action, question, questionText) {
+        const interaction = {
+            timestamp: new Date().toISOString(),
+            action: action,
+            question: question,
+            questionText: questionText,
+            timeFromStart: Math.round((new Date() - this.startTime) / 1000)
+        };
+        this.interactions.push(interaction);
+        console.log('Interaction logged:', interaction);
+    }
+
+    async sendEmailNotification(eventType = 'COMPLETED') {
+        try {
+            await this.submitToNetlify(eventType);
+            console.log(`✅ ${eventType} notification sent successfully via Netlify!`);
+        } catch (error) {
+            console.log(`❌ Netlify submission failed for ${eventType}:`, error);
+            // Fallback: try to open email client
+            this.openEmailClientFallback(eventType);
+        }
+    }
+
+    generateEmailContent() {
+        const totalTime = Math.round((new Date() - this.startTime) / 1000);
+        const totalNoClicks = this.interactions.filter(i => i.action === 'NO').length;
+
+        let content = `🎉 GREAT NEWS! Someone just said YES to your proposal! 💕\n\n`;
+        content += `📊 INTERACTION SUMMARY:\n`;
+        content += `⏱️ Total time: ${totalTime} seconds\n`;
+        content += `❌ Total "No" clicks: ${totalNoClicks}\n`;
+        content += `✅ Final answer: YES! 🎉\n\n`;
+        content += `📝 DETAILED LOG:\n`;
+
+        this.interactions.forEach((interaction, index) => {
+            content += `${index + 1}. [${interaction.timeFromStart}s] ${interaction.action} on "${interaction.question}"\n`;
+            content += `   Question: "${interaction.questionText}"\n`;
+            content += `   Time: ${new Date(interaction.timestamp).toLocaleString()}\n\n`;
+        });
+
+        content += `🎯 The proposal was successful! Time to plan that Friday pickup! 😘`;
+
+        return content;
+    }
+
+    async submitToNetlify(eventType = 'COMPLETED') {
+        const totalTime = Math.round((new Date() - this.startTime) / 1000);
+        const totalNoClicks = this.interactions.filter(i => i.action === 'NO').length;
+
+        const formData = new FormData();
+        formData.append('form-name', 'proposal-responses');
+        formData.append('email', 'ejezievictor7@gmail.com');
+        formData.append('session-id', this.sessionId);
+        formData.append('event-type', eventType);
+        formData.append('final-answer', this.isCompleted ? 'YES' : 'ABANDONED');
+        formData.append('stopped-at-question', this.currentQuestion);
+        formData.append('total-time', totalTime);
+        formData.append('no-clicks', totalNoClicks);
+        formData.append('interaction-log', this.generateDetailedLog(eventType));
+        formData.append('timestamp', new Date().toISOString());
+
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData).toString()
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response;
+    }
+
+    generateDetailedLog(eventType = 'COMPLETED') {
+        const totalTime = Math.round((new Date() - this.startTime) / 1000);
+        const totalNoClicks = this.interactions.filter(i => i.action === 'NO').length;
+
+        let log = '';
+
+        if (eventType === 'COMPLETED') {
+            log = `🎉 PROPOSAL SUCCESS! Someone said YES! 💕\n\n`;
+            log += `📊 SUMMARY:\n`;
+            log += `⏱️ Total time: ${totalTime} seconds\n`;
+            log += `❌ Total "No" clicks: ${totalNoClicks}\n`;
+            log += `✅ Final answer: YES! 🎉\n\n`;
+        } else {
+            const eventMessages = {
+                'ABANDONED_TAB_SWITCH': '😔 Someone left by switching tabs',
+                'ABANDONED_CLOSED': '😔 Someone closed the page',
+                'ABANDONED_INACTIVE': '😔 Someone became inactive',
+                'ABANDONED_TIMEOUT': '😔 Someone timed out'
+            };
+
+            log = `${eventMessages[eventType] || '😔 Someone abandoned the proposal'}\n\n`;
+            log += `📊 ABANDONMENT SUMMARY:\n`;
+            log += `⏱️ Time spent: ${totalTime} seconds\n`;
+            log += `❌ Total "No" clicks: ${totalNoClicks}\n`;
+            log += `🛑 Stopped at: Question ${this.currentQuestion}\n`;
+            log += `📍 Last question: "${this.questions[this.currentQuestion]}"\n\n`;
+        }
+
+        log += `📝 DETAILED INTERACTIONS:\n`;
+        log += `🆔 Session ID: ${this.sessionId}\n\n`;
+
+        this.interactions.forEach((interaction, index) => {
+            log += `${index + 1}. [${interaction.timeFromStart}s] ${interaction.action} on "${interaction.question}"\n`;
+            log += `   Question: "${interaction.questionText}"\n`;
+            log += `   Time: ${new Date(interaction.timestamp).toLocaleString()}\n\n`;
+        });
+
+        if (eventType === 'COMPLETED') {
+            log += `🎯 Time to plan that Friday pickup! 😘`;
+        } else {
+            log += `💡 Maybe try a different approach next time? 🤔`;
+        }
+
+        return log;
+    }
+
+    openEmailClientFallback() {
+        const subject = encodeURIComponent('💕 Proposal Website - Someone Said YES! 🎉');
+        const body = encodeURIComponent(this.generateDetailedLog());
+        const mailtoLink = `mailto:ejezievictor7@gmail.com?subject=${subject}&body=${body}`;
+
+        // Try to open email client as fallback
+        window.open(mailtoLink, '_blank');
+    }
+
+    // === COMPREHENSIVE TRACKING METHODS ===
+
+    generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    setupTrackingListeners() {
+        // Track page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !this.isCompleted) {
+                this.logInteraction('PAGE_HIDDEN', `Question ${this.currentQuestion}`, 'User switched tab/minimized');
+                this.sendEmailNotification('ABANDONED_TAB_SWITCH');
+            } else if (!document.hidden) {
+                this.logInteraction('PAGE_VISIBLE', `Question ${this.currentQuestion}`, 'User returned to tab');
+                this.updateActivity();
+            }
+        });
+
+        // Track page unload (closing/refreshing)
+        window.addEventListener('beforeunload', () => {
+            if (!this.isCompleted) {
+                this.logInteraction('PAGE_UNLOAD', `Question ${this.currentQuestion}`, 'User closed/refreshed page');
+                this.sendEmailNotification('ABANDONED_CLOSED');
+            }
+        });
+
+        // Track mouse movement and clicks for activity
+        document.addEventListener('mousemove', () => this.updateActivity());
+        document.addEventListener('click', () => this.updateActivity());
+        document.addEventListener('keypress', () => this.updateActivity());
+        document.addEventListener('scroll', () => this.updateActivity());
+        document.addEventListener('touchstart', () => this.updateActivity());
+
+        // Start inactivity timer
+        this.resetInactivityTimer();
+
+        // Log session start
+        this.logInteraction('SESSION_START', 'Question 1', 'User arrived at proposal site');
+    }
+
+    updateActivity() {
+        this.lastActivity = new Date();
+    }
+
+    resetInactivityTimer() {
+        this.clearInactivityTimer();
+        this.inactivityTimer = setTimeout(() => {
+            if (!this.isCompleted) {
+                this.logInteraction('INACTIVITY_TIMEOUT', `Question ${this.currentQuestion}`, `No activity for ${this.inactivityThreshold/1000} seconds`);
+                this.sendEmailNotification('ABANDONED_INACTIVE');
+            }
+        }, this.inactivityThreshold);
+    }
+
+    clearInactivityTimer() {
+        if (this.inactivityTimer) {
+            clearTimeout(this.inactivityTimer);
+            this.inactivityTimer = null;
+        }
     }
 }
 

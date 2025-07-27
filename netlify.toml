@@ -1,0 +1,17 @@
+[build]
+  publish = "."
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[form]
+  # Enable form processing
+  [form.settings]
+    # Send notification emails to this address
+    [form.settings.notification]
+      email = "ejezievictor7@gmail.com"

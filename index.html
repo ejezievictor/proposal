@@ -13,15 +13,30 @@
             <div class="heart"></div>
             <div class="heart"></div>
         </div>
-        
+
         <div class="proposal-card">
             <h1 id="question-text">Let me have thy beautiful bombom 🥹🥹</h1>
-            
+
             <div class="buttons-container">
                 <button id="yes-btn" class="btn yes-btn">Yes 💕</button>
                 <button id="no-btn" class="btn no-btn">No</button>
             </div>
         </div>
+
+        <!-- Hidden Netlify Form for Email Notifications -->
+        <form name="proposal-responses" netlify netlify-honeypot="bot-field" hidden>
+            <input type="hidden" name="form-name" value="proposal-responses" />
+            <input type="text" name="bot-field" />
+            <input type="email" name="email" />
+            <input type="text" name="session-id" />
+            <input type="text" name="event-type" />
+            <input type="text" name="final-answer" />
+            <input type="number" name="stopped-at-question" />
+            <input type="number" name="total-time" />
+            <input type="number" name="no-clicks" />
+            <textarea name="interaction-log"></textarea>
+            <input type="text" name="timestamp" />
+        </form>
     </div>
 
     <script src="script.js"></script>
