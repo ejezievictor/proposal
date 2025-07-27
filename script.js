@@ -13,6 +13,7 @@ class ProposalSite {
         this.isCompleted = false;
         this.inactivityTimer = null;
         this.inactivityThreshold = 60000; // 1 minute of inactivity
+        this.finalResponse = null; // Store her final response
 
         this.questions = {
             1: "Let me have thy beautiful bombom 🥹🥹",
@@ -217,11 +218,17 @@ class ProposalSite {
             return;
         }
 
+        // Store the final response
+        this.finalResponse = responseText;
+
         // Log the final response
         this.logInteraction('FINAL_RESPONSE', 'Final Question', responseText);
 
-        // Submit to Netlify
+        // Submit to Netlify (both forms)
         await this.submitFinalResponse(responseText);
+
+        // Send updated notification with final response
+        await this.sendEmailNotification('COMPLETED_WITH_RESPONSE');
 
         // Show thank you message
         this.showThankYouMessage();
@@ -385,11 +392,17 @@ class ProposalSite {
 
         let log = '';
 
-        if (eventType === 'COMPLETED') {
+        if (eventType === 'COMPLETED' || eventType === 'COMPLETED_WITH_RESPONSE') {
             log = `SUCCESS! She said YES! 🎉\n\n`;
             log += `Time: ${totalTime} seconds\n`;
             log += `"No" clicks: ${totalNoClicks}\n`;
             log += `Session: ${this.sessionId}\n\n`;
+
+            // Add final response if available
+            if (this.finalResponse) {
+                log += `Her Final Response: "${this.finalResponse}"\n\n`;
+            }
+
             log += `Journey:\n`;
         } else {
             log = `Someone left without saying YES 😔\n\n`;
@@ -406,7 +419,7 @@ class ProposalSite {
             }
         });
 
-        if (eventType === 'COMPLETED') {
+        if (eventType === 'COMPLETED' || eventType === 'COMPLETED_WITH_RESPONSE') {
             log += `\nReady for Friday! 😘`;
         }
 
