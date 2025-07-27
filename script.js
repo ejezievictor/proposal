@@ -205,6 +205,8 @@ class ProposalSite {
 
     async submitFinalResponse(responseText) {
         try {
+            console.log('📝 Submitting final response:', responseText);
+
             const formData = new URLSearchParams();
             formData.append('form-name', 'final-responses');
             formData.append('email', 'ejezievictor7@gmail.com');
@@ -214,13 +216,19 @@ class ProposalSite {
             formData.append('total-time', Math.round((new Date() - this.startTime) / 1000));
             formData.append('timestamp', new Date().toISOString());
 
+            console.log('📤 Form data:', Object.fromEntries(formData));
+
             const response = await fetch('/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData.toString()
             });
 
-            console.log('✅ Final response submitted successfully!');
+            if (response.ok) {
+                console.log('✅ Final response submitted successfully!');
+            } else {
+                console.log('❌ Response not OK:', response.status, response.statusText);
+            }
 
         } catch (error) {
             console.log('❌ Final response submission failed:', error);
@@ -354,40 +362,28 @@ class ProposalSite {
         let log = '';
 
         if (eventType === 'COMPLETED') {
-            log = `🎉 PROPOSAL SUCCESS! Someone said YES! 💕\n\n`;
-            log += `📊 SUMMARY:\n`;
-            log += `⏱️ Total time: ${totalTime} seconds\n`;
-            log += `❌ Total "No" clicks: ${totalNoClicks}\n`;
-            log += `✅ Final answer: YES! 🎉\n\n`;
+            log = `SUCCESS! She said YES! 🎉\n\n`;
+            log += `Time: ${totalTime} seconds\n`;
+            log += `"No" clicks: ${totalNoClicks}\n`;
+            log += `Session: ${this.sessionId}\n\n`;
+            log += `Journey:\n`;
         } else {
-            const eventMessages = {
-                'ABANDONED_TAB_SWITCH': '😔 Someone left by switching tabs',
-                'ABANDONED_CLOSED': '😔 Someone closed the page',
-                'ABANDONED_INACTIVE': '😔 Someone became inactive',
-                'ABANDONED_TIMEOUT': '😔 Someone timed out'
-            };
-
-            log = `${eventMessages[eventType] || '😔 Someone abandoned the proposal'}\n\n`;
-            log += `📊 ABANDONMENT SUMMARY:\n`;
-            log += `⏱️ Time spent: ${totalTime} seconds\n`;
-            log += `❌ Total "No" clicks: ${totalNoClicks}\n`;
-            log += `🛑 Stopped at: Question ${this.currentQuestion}\n`;
-            log += `📍 Last question: "${this.questions[this.currentQuestion]}"\n\n`;
+            log = `Someone left without saying YES 😔\n\n`;
+            log += `Time spent: ${totalTime} seconds\n`;
+            log += `"No" clicks: ${totalNoClicks}\n`;
+            log += `Stopped at: Question ${this.currentQuestion}\n`;
+            log += `Session: ${this.sessionId}\n\n`;
         }
 
-        log += `📝 DETAILED INTERACTIONS:\n`;
-        log += `🆔 Session ID: ${this.sessionId}\n\n`;
-
+        // Simplified interaction log
         this.interactions.forEach((interaction, index) => {
-            log += `${index + 1}. [${interaction.timeFromStart}s] ${interaction.action} on "${interaction.question}"\n`;
-            log += `   Question: "${interaction.questionText}"\n`;
-            log += `   Time: ${new Date(interaction.timestamp).toLocaleString()}\n\n`;
+            if (interaction.action === 'YES' || interaction.action === 'NO') {
+                log += `${index + 1}. ${interaction.action} (${interaction.timeFromStart}s)\n`;
+            }
         });
 
         if (eventType === 'COMPLETED') {
-            log += `🎯 Time to plan that Friday pickup! 😘`;
-        } else {
-            log += `💡 Maybe try a different approach next time? 🤔`;
+            log += `\nReady for Friday! 😘`;
         }
 
         return log;
